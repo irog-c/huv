@@ -1,0 +1,62 @@
+---
+# clang-tidy config for libhttp (C11).
+#
+# C++-only families (modernize-*, cppcoreguidelines-*, hicpp-*,
+# google-*) are intentionally omitted — they're noise on a pure-C
+# codebase. The selections below are the C-applicable checks that
+# surface real bugs without drowning the output in style nits.
+#
+# A few specific disables worth calling out:
+#   * clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+#     pushes C11 Annex K (`memcpy_s`, `snprintf_s`, …). Annex K is
+#     optional and barely implemented outside Windows — glibc does not
+#     ship it. Keeping the check on means every `memcpy` in the tree
+#     is a warning.
+#   * bugprone-implicit-widening-of-multiplication-result fires on
+#     every `64u * 1024u` constant. Valid in principle, noise in
+#     practice for size constants that never overflow.
+#   * readability-uppercase-literal-suffix is cosmetic and the
+#     codebase is internally consistent (lowercase).
+#
+# Scope: our own code only (src/, include/, examples/). Third-party
+# trees (build/_deps/llhttp, build/_deps/mbedtls) are excluded by the
+# runner script, not here.
+
+Checks: >
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  misc-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-assignment-in-if-condition,
+  -bugprone-switch-missing-default-case,
+  -bugprone-implicit-widening-of-multiplication-result,
+  -cert-err33-c,
+  -cert-dcl03-c,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+  -misc-include-cleaner,
+  -misc-no-recursion,
+  -misc-static-assert,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-function-cognitive-complexity,
+  -readability-braces-around-statements,
+  -readability-else-after-return,
+  -readability-isolate-declaration,
+  -readability-named-parameter,
+  -readability-avoid-const-params-in-decls,
+  -readability-uppercase-literal-suffix
+
+# Only lint headers under our own tree. mbedtls/llhttp/uv headers
+# pulled in transitively would otherwise flood the output.
+HeaderFilterRegex: '^.*/(include/http|src)/[^/]+\.h$'
+
+# Strict: every enabled check is an error. When a clang-tidy warning is a
+# known false positive, silence it at the site with a NOLINTNEXTLINE
+# comment that names the check AND explains *why* it is spurious. Do not
+# add a blanket disable here unless the check is wrong for this codebase.
+WarningsAsErrors: '*'
+FormatStyle: file
