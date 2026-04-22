@@ -77,3 +77,8 @@ curl http://localhost:8080/   # → hello
 Library is a learning project — not a hardened production server. The design
 goals are: small surface, understandable code, end-to-end shell tests for
 everything that ships.
+
+## License
+
+Copyright 2026 Igor Mihajlov. Licensed under the Apache License, Version 2.0 —
+see [LICENSE](LICENSE) for the full text.

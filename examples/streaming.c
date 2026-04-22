@@ -32,8 +32,7 @@ static void health(huv_request_t *req, huv_response_t *res, huv_next_fn next)
     huv_response_send(res, "OK", 2);
 }
 
-static void numbers(huv_request_t *req, huv_response_t *res,
-                    huv_next_fn next)
+static void numbers(huv_request_t *req, huv_response_t *res, huv_next_fn next)
 {
     (void)next;
     const char *nstr = huv_request_query_param(req, "n");

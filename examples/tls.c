@@ -1,5 +1,6 @@
 /* TLS demo: runs both plain HTTP on :8080 and HTTPS on :8443, sharing routes.
- * Cert paths are passed on argv so CMake can point at build/tls/server.{crt,key}. */
+ * Cert paths are passed on argv so CMake can point at
+ * build/tls/server.{crt,key}. */
 #include "huv/server.h"
 
 #include <stdio.h>
@@ -19,9 +20,9 @@ static void hello(huv_request_t *req, huv_response_t *res, huv_next_fn next)
     (void)next;
     const char *who = huv_request_query_param(req, "who");
     char buf[256];
-    int n = snprintf(buf, sizeof(buf), "hello %s over %s\n",
-                     who ? who : "world",
-                     huv_request_header(req, "Host") ? "tls-or-plain" : "?");
+    int n =
+        snprintf(buf, sizeof(buf), "hello %s over %s\n", who ? who : "world",
+                 huv_request_header(req, "Host") ? "tls-or-plain" : "?");
     huv_response_status(res, 200);
     huv_response_send(res, buf, (size_t)n);
 }
