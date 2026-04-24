@@ -57,8 +57,8 @@ typedef struct
     void *log_user;
 } huv_server_config_t;
 
-#define HUV_SERVER_CONFIG_DEFAULT                                             \
-    (huv_server_config_t)                                                     \
+#define HUV_SERVER_CONFIG_DEFAULT                                              \
+    (huv_server_config_t)                                                      \
     {                                                                          \
         .port = 8080, .bind_addr = "0.0.0.0", .idle_timeout_ms = 30000,        \
         .request_timeout_ms = 30000, .shutdown_timeout_ms = 10000,             \
@@ -78,17 +78,17 @@ void huv_server_use(huv_server_t *server, huv_handler_fn middleware);
  * read in the handler via huv_request_param(req, name). Static routes
  * always win over parameterized routes when both could match. */
 void huv_server_get(huv_server_t *server, const char *path,
-                     huv_handler_fn handler);
+                    huv_handler_fn handler);
 void huv_server_post(huv_server_t *server, const char *path,
-                      huv_handler_fn handler);
-void huv_server_put(huv_server_t *server, const char *path,
                      huv_handler_fn handler);
+void huv_server_put(huv_server_t *server, const char *path,
+                    huv_handler_fn handler);
 void huv_server_delete(huv_server_t *server, const char *path,
-                        huv_handler_fn handler);
-void huv_server_patch(huv_server_t *server, const char *path,
                        huv_handler_fn handler);
-void huv_server_head(huv_server_t *server, const char *path,
+void huv_server_patch(huv_server_t *server, const char *path,
                       huv_handler_fn handler);
+void huv_server_head(huv_server_t *server, const char *path,
+                     huv_handler_fn handler);
 
 int huv_server_run(huv_server_t *server);
 

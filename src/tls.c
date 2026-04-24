@@ -16,7 +16,8 @@
  * respond. */
 #define HUV_TLS_INBOX_HARD_CAP (256u * 1024u)
 
-struct huv_tls_ctx {
+struct huv_tls_ctx
+{
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
     mbedtls_x509_crt cert;
@@ -24,7 +25,8 @@ struct huv_tls_ctx {
     mbedtls_ssl_config conf;
 };
 
-struct huv_tls_conn {
+struct huv_tls_conn
+{
     mbedtls_ssl_context ssl;
     char *inbox; /* encrypted bytes received from peer, awaiting decrypt */
     size_t inbox_len, inbox_cap, inbox_pos;
@@ -300,7 +302,7 @@ void huv_tls_on_read(huv_conn_t *conn, const char *buf, size_t len)
         return;
     if (inbox_append(conn->tls, buf, len) < 0) {
         huv_log(conn->server, HUV_LOG_WARN,
-                 "tls inbox over cap — closing connection");
+                "tls inbox over cap — closing connection");
         conn->tls->fatal = true;
         huv_conn_close(conn);
         return;

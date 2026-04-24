@@ -2,16 +2,14 @@
 
 #include <stdlib.h>
 
-typedef struct {
+typedef struct
+{
     uv_timer_t timer;
     huv_async_fn cb;
     void *userdata;
 } timer_defer_ctx_t;
 
-static void timer_defer_on_closed(uv_handle_t *h)
-{
-    free(h->data);
-}
+static void timer_defer_on_closed(uv_handle_t *h) { free(h->data); }
 
 static void timer_defer_on_tick(uv_timer_t *t)
 {
@@ -26,7 +24,7 @@ static void timer_defer_on_tick(uv_timer_t *t)
 }
 
 int huv_timer_defer(const huv_request_t *req, unsigned delay_ms,
-                     huv_async_fn cb, void *userdata)
+                    huv_async_fn cb, void *userdata)
 {
     huv_conn_t *conn = req->conn;
     timer_defer_ctx_t *ctx = malloc(sizeof(*ctx));
@@ -46,7 +44,8 @@ int huv_timer_defer(const huv_request_t *req, unsigned delay_ms,
     return 0;
 }
 
-typedef struct {
+typedef struct
+{
     uv_work_t req; /* must be first — we cast uv_work_t* back to this type */
     huv_async_fn work_cb;
     huv_async_fn done_cb;
@@ -69,7 +68,7 @@ static void work_submit_on_done(uv_work_t *req, int status)
 }
 
 int huv_work_submit(const huv_request_t *req, huv_async_fn work_cb,
-                     huv_async_fn done_cb, void *userdata)
+                    huv_async_fn done_cb, void *userdata)
 {
     huv_conn_t *conn = req->conn;
     work_submit_ctx_t *ctx = malloc(sizeof(*ctx));

@@ -24,8 +24,7 @@ const char *huv_request_param(const huv_request_t *req, const char *name);
  * decoded), or NULL if the key is not present. Keys with no '=' decode
  * to "". If the key appears multiple times, the first is returned. The
  * returned pointer is valid for the lifetime of the request. */
-const char *huv_request_query_param(const huv_request_t *req,
-                                     const char *name);
+const char *huv_request_query_param(const huv_request_t *req, const char *name);
 
 /* Look up a request header by name (case-insensitive). Returns a pointer to
  * the NUL-terminated value, or NULL if the header is not present. If a
@@ -37,7 +36,7 @@ const char *huv_request_header(const huv_request_t *req, const char *name);
  * huv_request_header_at() to walk them. */
 size_t huv_request_header_count(const huv_request_t *req);
 void huv_request_header_at(const huv_request_t *req, size_t index,
-                            const char **name, const char **value);
+                           const char **name, const char **value);
 
 #ifdef __cplusplus
 }

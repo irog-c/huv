@@ -1,5 +1,6 @@
-/* Routing demo: path params, all method helpers (GET/POST/PUT/DELETE/PATCH/HEAD),
- * 405 Method Not Allowed with Allow header. */
+/* Routing demo: path params, all method helpers
+ * (GET/POST/PUT/DELETE/PATCH/HEAD), 405 Method Not Allowed with Allow header.
+ */
 #include "huv/server.h"
 
 #include <stdio.h>
@@ -59,7 +60,8 @@ int main(void)
     huv_server_get(app, "/users/:id", user_detail);
     huv_server_get(app, "/users/:id/posts/:pid", user_detail);
 
-    /* /item registered under every method → tests confirm each helper dispatches. */
+    /* /item registered under every method → tests confirm each helper
+     * dispatches. */
     huv_server_get(app, "/item", method_echo);
     huv_server_post(app, "/item", method_echo);
     huv_server_put(app, "/item", method_echo);

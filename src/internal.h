@@ -19,36 +19,42 @@
 #define HUV_PARAM_NAME_MAX 32
 #define HUV_MAX_QUERY_PARAMS 32
 
-typedef enum {
-    HDR_NONE = 0,      /* no pending header */
-    HDR_IN_FIELD,      /* accumulating name chunks into current slot */
-    HDR_IN_VALUE,      /* accumulating value chunks into current slot */
+typedef enum
+{
+    HDR_NONE = 0, /* no pending header */
+    HDR_IN_FIELD, /* accumulating name chunks into current slot */
+    HDR_IN_VALUE, /* accumulating value chunks into current slot */
 } hdr_state_t;
 
-typedef struct {
+typedef struct
+{
     size_t name_off, name_len;
     size_t value_off, value_len;
 } header_slot_t;
 
-typedef enum {
+typedef enum
+{
     PHASE_IDLE,
     PHASE_RECEIVING,
     PHASE_RESPONDING,
 } conn_phase_t;
 
-typedef struct {
+typedef struct
+{
     char path[HUV_PATH_MAX];
     char method[HUV_METHOD_MAX];
     huv_handler_fn handler;
     bool has_param; /* true if path contains any :name segment */
 } huv_route_t;
 
-typedef struct {
+typedef struct
+{
     char name[HUV_PARAM_NAME_MAX];
     size_t value_off; /* offset into huv_conn.param_buf */
 } param_slot_t;
 
-typedef struct {
+typedef struct
+{
     size_t name_off;  /* offset into huv_conn.query_buf */
     size_t value_off; /* offset into huv_conn.query_buf */
 } query_slot_t;
@@ -56,7 +62,8 @@ typedef struct {
 typedef struct huv_tls_ctx huv_tls_ctx_t;
 typedef struct huv_tls_conn huv_tls_conn_t;
 
-struct huv_server {
+struct huv_server
+{
     huv_server_config_t config;
     uv_loop_t loop;
     uv_tcp_t listener;
@@ -83,7 +90,8 @@ struct huv_server {
     int num_routes;
 };
 
-struct huv_request {
+struct huv_request
+{
     const char *method;
     const char *path;
     const char *query;
@@ -92,7 +100,8 @@ struct huv_request {
     void *conn;
 };
 
-struct huv_response {
+struct huv_response
+{
     int status;
     char *custom_headers;
     size_t custom_headers_len;
@@ -103,7 +112,8 @@ struct huv_response {
     void *conn;
 };
 
-typedef struct huv_conn {
+typedef struct huv_conn
+{
     uv_tcp_t tcp;
     uv_timer_t timer;
     llhttp_t parser;
@@ -171,7 +181,7 @@ typedef struct huv_conn {
 
 /* --- buf.c --- */
 int huv_buf_append(char **buf, size_t *len, size_t *cap, const char *data,
-                    size_t n, size_t hard_cap);
+                   size_t n, size_t hard_cap);
 int huv_buf_append_nul(char **buf, size_t *len, size_t *cap, size_t hard_cap);
 
 /* --- log.c --- */
@@ -183,8 +193,7 @@ void huv_conn_unref(huv_conn_t *conn);
 void huv_conn_close(huv_conn_t *conn);
 void huv_conn_set_phase(huv_conn_t *conn, conn_phase_t phase);
 void huv_conn_reset_request_state(huv_conn_t *conn);
-void huv_conn_send_simple_error(huv_conn_t *conn, int status,
-                                 const char *body);
+void huv_conn_send_simple_error(huv_conn_t *conn, int status, const char *body);
 void huv_conn_on_accept(uv_stream_t *listener, int status);
 void huv_conn_on_accept_tls(uv_stream_t *listener, int status);
 /* Feeds raw plaintext bytes into the llhttp parser with the same error
@@ -194,7 +203,7 @@ void huv_conn_feed_parser(huv_conn_t *conn, const char *data, size_t len);
 /* --- router.c --- */
 void huv_dispatch_next(huv_request_t *req, huv_response_t *res);
 void huv_router_add(huv_server_t *s, const char *method, const char *path,
-                     huv_handler_fn handler);
+                    huv_handler_fn handler);
 
 /* --- response.c --- */
 void huv_response_finalize(huv_conn_t *conn);

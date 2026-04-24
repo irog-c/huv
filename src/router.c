@@ -24,18 +24,20 @@ static bool path_matches_pattern(const char *pattern, const char *path)
         if (*pp == '/' && pp[1] == ':') {
             if (*sp != '/')
                 return false;
-            pp++; sp++;  /* skip '/' */
-            pp++;        /* skip ':' */
+            pp++;
+            sp++; /* skip '/' */
+            pp++; /* skip ':' */
             while (*pp && *pp != '/')
-                pp++;    /* skip name */
+                pp++; /* skip name */
             if (*sp == '\0' || *sp == '/')
-                return false;  /* empty value segment */
+                return false; /* empty value segment */
             while (*sp && *sp != '/')
-                sp++;    /* skip value */
+                sp++; /* skip value */
         } else {
             if (*pp != *sp)
                 return false;
-            pp++; sp++;
+            pp++;
+            sp++;
         }
     }
     return *pp == '\0' && *sp == '\0';
@@ -57,8 +59,9 @@ static bool route_match(huv_conn_t *conn, const char *pattern, const char *path)
         if (*pp == '/' && pp[1] == ':') {
             if (*sp != '/')
                 goto fail;
-            pp++; sp++; /* skip '/' */
-            pp++;       /* skip ':' */
+            pp++;
+            sp++; /* skip '/' */
+            pp++; /* skip ':' */
 
             const char *name = pp;
             while (*pp && *pp != '/')
@@ -78,11 +81,11 @@ static bool route_match(huv_conn_t *conn, const char *pattern, const char *path)
                 goto fail;
 
             if (huv_buf_append(&conn->param_buf, &conn->param_buf_len,
-                                &conn->param_buf_cap, val, val_len,
-                                64u * 1024u) < 0)
+                               &conn->param_buf_cap, val, val_len,
+                               64u * 1024u) < 0)
                 goto fail;
             if (huv_buf_append_nul(&conn->param_buf, &conn->param_buf_len,
-                                    &conn->param_buf_cap, 64u * 1024u) < 0)
+                                   &conn->param_buf_cap, 64u * 1024u) < 0)
                 goto fail;
 
             param_slot_t *slot = &conn->params[conn->param_count++];
@@ -92,7 +95,8 @@ static bool route_match(huv_conn_t *conn, const char *pattern, const char *path)
         } else {
             if (*pp != *sp)
                 goto fail;
-            pp++; sp++;
+            pp++;
+            sp++;
         }
     }
 
@@ -122,8 +126,7 @@ void huv_dispatch_next(huv_request_t *req, huv_response_t *res)
     /* Static routes always win — look them up first. */
     for (int i = 0; i < server->num_routes; i++) {
         huv_route_t *route = &server->routes[i];
-        if (!route->has_param &&
-            strcmp(route->method, req->method) == 0 &&
+        if (!route->has_param && strcmp(route->method, req->method) == 0 &&
             strcmp(route->path, req->path) == 0) {
             route->handler(req, res, huv_dispatch_next);
             return;
@@ -132,8 +135,7 @@ void huv_dispatch_next(huv_request_t *req, huv_response_t *res)
 
     for (int i = 0; i < server->num_routes; i++) {
         huv_route_t *route = &server->routes[i];
-        if (route->has_param &&
-            strcmp(route->method, req->method) == 0 &&
+        if (route->has_param && strcmp(route->method, req->method) == 0 &&
             route_match(conn, route->path, req->path)) {
             route->handler(req, res, huv_dispatch_next);
             return;
@@ -179,7 +181,7 @@ void huv_dispatch_next(huv_request_t *req, huv_response_t *res)
 }
 
 void huv_router_add(huv_server_t *s, const char *method, const char *path,
-                     huv_handler_fn handler)
+                    huv_handler_fn handler)
 {
     if (s->num_routes >= HUV_MAX_ROUTES)
         return;

@@ -30,8 +30,7 @@ static void whoami(huv_request_t *req, huv_response_t *res, huv_next_fn next)
     huv_response_send(res, buf, (size_t)n);
 }
 
-static void headers(huv_request_t *req, huv_response_t *res,
-                    huv_next_fn next)
+static void headers(huv_request_t *req, huv_response_t *res, huv_next_fn next)
 {
     (void)next;
     char buf[4096];

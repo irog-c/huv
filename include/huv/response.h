@@ -10,7 +10,7 @@ extern "C" {
 
 void huv_response_status(huv_response_t *res, int status);
 void huv_response_header(huv_response_t *res, const char *name,
-                          const char *value);
+                         const char *value);
 
 /* Atomic send: status line + headers + body in a single write. Use for
  * complete responses where the body fits in memory. Consumes the response;

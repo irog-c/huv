@@ -20,7 +20,7 @@ typedef void (*huv_async_fn)(void *userdata);
  * artificial delay). Returns 0 on success, -1 on allocation failure — if
  * -1, the callback will not fire and the caller still owns the response. */
 int huv_timer_defer(const huv_request_t *req, unsigned delay_ms,
-                     huv_async_fn cb, void *userdata);
+                    huv_async_fn cb, void *userdata);
 
 /* Run work_cb(userdata) on a background worker thread, then done_cb(userdata)
  * on the server loop thread. Use for blocking I/O or CPU-bound work that
@@ -30,7 +30,7 @@ int huv_timer_defer(const huv_request_t *req, unsigned delay_ms,
  * Returns 0 on success, -1 on allocation failure — if -1, neither callback
  * will fire and the caller still owns the response. */
 int huv_work_submit(const huv_request_t *req, huv_async_fn work_cb,
-                     huv_async_fn done_cb, void *userdata);
+                    huv_async_fn done_cb, void *userdata);
 
 #ifdef __cplusplus
 }

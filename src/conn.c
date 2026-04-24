@@ -65,8 +65,7 @@ void huv_conn_unref(huv_conn_t *conn)
     conn_free_buffers(conn);
     huv_tls_conn_detach(conn);
     free(conn);
-    if (s->shutting_down && s->num_conns == 0 &&
-        s->drain_timer_initialized &&
+    if (s->shutting_down && s->num_conns == 0 && s->drain_timer_initialized &&
         !uv_is_closing((uv_handle_t *)&s->drain_timer)) {
         uv_timer_stop(&s->drain_timer);
         uv_close((uv_handle_t *)&s->drain_timer, NULL);
@@ -126,7 +125,7 @@ static void on_conn_timeout(uv_timer_t *timer)
 {
     huv_conn_t *conn = timer->data;
     huv_log(conn->server, HUV_LOG_DEBUG, "connection timed out in phase %d",
-             (int)conn->phase);
+            (int)conn->phase);
     huv_conn_close(conn);
 }
 
@@ -176,7 +175,7 @@ static int on_url_cb(llhttp_t *p, const char *at, size_t length)
 {
     huv_conn_t *conn = p->data;
     return huv_buf_append(&conn->url, &conn->url_len, &conn->url_cap, at,
-                           length, HUV_URL_HARD_CAP);
+                          length, HUV_URL_HARD_CAP);
 }
 
 static int on_header_field_cb(llhttp_t *p, const char *at, size_t length)
@@ -185,7 +184,7 @@ static int on_header_field_cb(llhttp_t *p, const char *at, size_t length)
     if (c->hdr_state == HDR_IN_VALUE) {
         /* Previous value complete — terminate it, then start new slot. */
         if (huv_buf_append_nul(&c->hdr_buf, &c->hdr_buf_len, &c->hdr_buf_cap,
-                                HUV_HEADERS_HARD_CAP) < 0)
+                               HUV_HEADERS_HARD_CAP) < 0)
             return -1;
         c->hdr_slots[c->hdr_slot_count - 1].value_len =
             c->hdr_buf_len - 1 - c->hdr_slots[c->hdr_slot_count - 1].value_off;
@@ -202,7 +201,7 @@ static int on_header_field_cb(llhttp_t *p, const char *at, size_t length)
         c->hdr_state = HDR_IN_FIELD;
     }
     return huv_buf_append(&c->hdr_buf, &c->hdr_buf_len, &c->hdr_buf_cap, at,
-                           length, HUV_HEADERS_HARD_CAP);
+                          length, HUV_HEADERS_HARD_CAP);
 }
 
 static int on_header_value_cb(llhttp_t *p, const char *at, size_t length)
@@ -213,13 +212,13 @@ static int on_header_value_cb(llhttp_t *p, const char *at, size_t length)
         header_slot_t *s = &c->hdr_slots[c->hdr_slot_count - 1];
         s->name_len = c->hdr_buf_len - s->name_off;
         if (huv_buf_append_nul(&c->hdr_buf, &c->hdr_buf_len, &c->hdr_buf_cap,
-                                HUV_HEADERS_HARD_CAP) < 0)
+                               HUV_HEADERS_HARD_CAP) < 0)
             return -1;
         s->value_off = c->hdr_buf_len;
         c->hdr_state = HDR_IN_VALUE;
     }
     return huv_buf_append(&c->hdr_buf, &c->hdr_buf_len, &c->hdr_buf_cap, at,
-                           length, HUV_HEADERS_HARD_CAP);
+                          length, HUV_HEADERS_HARD_CAP);
 }
 
 static int on_headers_complete_cb(llhttp_t *p)
@@ -228,7 +227,7 @@ static int on_headers_complete_cb(llhttp_t *p)
     if (c->hdr_state == HDR_IN_VALUE) {
         header_slot_t *s = &c->hdr_slots[c->hdr_slot_count - 1];
         if (huv_buf_append_nul(&c->hdr_buf, &c->hdr_buf_len, &c->hdr_buf_cap,
-                                HUV_HEADERS_HARD_CAP) < 0)
+                               HUV_HEADERS_HARD_CAP) < 0)
             return -1;
         s->value_len = c->hdr_buf_len - 1 - s->value_off;
         c->hdr_state = HDR_NONE;
@@ -243,7 +242,7 @@ static int on_body_cb(llhttp_t *p, const char *at, size_t length)
     if (cap == 0)
         cap = 1u << 20;
     if (huv_buf_append(&conn->body, &conn->body_len, &conn->body_cap, at,
-                        length, cap) < 0) {
+                       length, cap) < 0) {
         conn->body_limit_exceeded = true;
         return -1;
     }
@@ -328,8 +327,8 @@ void huv_conn_feed_parser(huv_conn_t *conn, const char *data, size_t len)
         bool during_send = conn->pending_writes > 0 || conn->res.head_written;
         if (!during_send) {
             int status = conn->body_limit_exceeded ? 413 : 400;
-            const char *msg = conn->body_limit_exceeded ? "Payload Too Large"
-                                                        : "Bad Request";
+            const char *msg =
+                conn->body_limit_exceeded ? "Payload Too Large" : "Bad Request";
             huv_conn_send_simple_error(conn, status, msg);
         } else {
             conn->should_close_after_write = true;
@@ -337,8 +336,7 @@ void huv_conn_feed_parser(huv_conn_t *conn, const char *data, size_t len)
     }
 }
 
-void huv_conn_send_simple_error(huv_conn_t *conn, int status,
-                                 const char *body)
+void huv_conn_send_simple_error(huv_conn_t *conn, int status, const char *body)
 {
     conn->keep_alive = false;
     conn->res.status = status;
@@ -396,8 +394,8 @@ static void accept_common(uv_stream_t *listener, int status, bool is_tls)
         uv_tcp_init(&server->loop, scrap);
         if (uv_accept(listener, (uv_stream_t *)scrap) == 0) {
             huv_log(server, HUV_LOG_WARN,
-                     "rejecting connection: at max_connections=%u",
-                     server->config.max_connections);
+                    "rejecting connection: at max_connections=%u",
+                    server->config.max_connections);
         }
         uv_close((uv_handle_t *)scrap, (uv_close_cb)free);
         return;

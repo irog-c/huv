@@ -1,14 +1,15 @@
 #include "internal.h"
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 
 /* The payload buffer is allocated in one block right after this header, so
  * huv_conn_alloc_write returns (char *)(wctx + 1) and submit/free recover
  * the header via ((write_ctx_t *)buf) - 1. One malloc per write, one free. */
-typedef struct {
+typedef struct
+{
     uv_write_t write_req;
     huv_conn_t *conn;
 } write_ctx_t;
@@ -34,23 +35,40 @@ void huv_conn_free_write(char *buf)
 static const char *reason_phrase(int status)
 {
     switch (status) {
-    case 200: return "OK";
-    case 201: return "Created";
-    case 204: return "No Content";
-    case 301: return "Moved Permanently";
-    case 302: return "Found";
-    case 304: return "Not Modified";
-    case 400: return "Bad Request";
-    case 401: return "Unauthorized";
-    case 403: return "Forbidden";
-    case 404: return "Not Found";
-    case 405: return "Method Not Allowed";
-    case 408: return "Request Timeout";
-    case 413: return "Payload Too Large";
-    case 500: return "Internal Server Error";
-    case 501: return "Not Implemented";
-    case 503: return "Service Unavailable";
-    default:  return "";
+    case 200:
+        return "OK";
+    case 201:
+        return "Created";
+    case 204:
+        return "No Content";
+    case 301:
+        return "Moved Permanently";
+    case 302:
+        return "Found";
+    case 304:
+        return "Not Modified";
+    case 400:
+        return "Bad Request";
+    case 401:
+        return "Unauthorized";
+    case 403:
+        return "Forbidden";
+    case 404:
+        return "Not Found";
+    case 405:
+        return "Method Not Allowed";
+    case 408:
+        return "Request Timeout";
+    case 413:
+        return "Payload Too Large";
+    case 500:
+        return "Internal Server Error";
+    case 501:
+        return "Not Implemented";
+    case 503:
+        return "Service Unavailable";
+    default:
+        return "";
     }
 }
 
@@ -60,7 +78,7 @@ void huv_response_status(huv_response_t *res, int status)
 }
 
 void huv_response_header(huv_response_t *res, const char *name,
-                          const char *value)
+                         const char *value)
 {
     size_t nlen = strlen(name);
     size_t vlen = strlen(value);
@@ -131,9 +149,9 @@ int huv_conn_submit_raw_write(huv_conn_t *conn, char *buf, size_t len)
             uv_stream_get_write_queue_size((uv_stream_t *)&conn->tcp);
         if (queued + len > cap) {
             huv_log(conn->server, HUV_LOG_WARN,
-                     "write %zu+%zu bytes would exceed "
-                     "max_write_queue_bytes=%zu; closing",
-                     queued, len, cap);
+                    "write %zu+%zu bytes would exceed "
+                    "max_write_queue_bytes=%zu; closing",
+                    queued, len, cap);
             return -1;
         }
     }
@@ -187,8 +205,8 @@ void huv_response_finalize(huv_conn_t *conn)
 {
     int status = conn->res.status == 0 ? 200 : conn->res.status;
     huv_log(conn->server, HUV_LOG_INFO, "%s %s %d",
-             conn->method_buf[0] ? conn->method_buf : "?",
-             conn->path_buf[0] ? conn->path_buf : "?", status);
+            conn->method_buf[0] ? conn->method_buf : "?",
+            conn->path_buf[0] ? conn->path_buf : "?", status);
 
     if (conn->should_close_after_write || !conn->keep_alive ||
         conn->server->shutting_down || conn->closing) {
@@ -237,7 +255,8 @@ static char *build_head_payload(huv_response_t *res, size_t extra,
                    "Connection: %s\r\n",
                    conn->keep_alive ? "keep-alive" : "close");
 
-    size_t total = (size_t)sl + res->custom_headers_len + (size_t)al + 2 + extra;
+    size_t total =
+        (size_t)sl + res->custom_headers_len + (size_t)al + 2 + extra;
     char *p = huv_conn_alloc_write(total);
     if (!p)
         return NULL;
@@ -252,7 +271,8 @@ static char *build_head_payload(huv_response_t *res, size_t extra,
     off += (size_t)al;
     /* FP: this is a fixed-length wire buffer tracked by `off`; there is no
      * NUL terminator to produce. */
-    memcpy(p + off, "\r\n", 2); /* NOLINT(bugprone-not-null-terminated-result) */
+    memcpy(p + off, "\r\n",
+           2); /* NOLINT(bugprone-not-null-terminated-result) */
     off += 2;
     *out_len = off; /* caller fills extra bytes starting at p + off */
     return p;
@@ -314,10 +334,9 @@ void huv_response_write_head(huv_response_t *res)
     if (conn->closing)
         return; /* ended flag still false; end() will unref */
 
-    bool have_cl = headers_contain(res->custom_headers,
-                                   res->custom_headers_len, "Content-Length");
-    bool have_te = headers_contain(res->custom_headers,
-                                   res->custom_headers_len,
+    bool have_cl = headers_contain(res->custom_headers, res->custom_headers_len,
+                                   "Content-Length");
+    bool have_te = headers_contain(res->custom_headers, res->custom_headers_len,
                                    "Transfer-Encoding");
     res->chunked = !have_cl && !have_te;
 

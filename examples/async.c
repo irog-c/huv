@@ -30,7 +30,8 @@ static void slow(huv_request_t *req, huv_response_t *res, huv_next_fn next)
     }
 }
 
-typedef struct {
+typedef struct
+{
     huv_response_t *res;
     unsigned long iters;
     unsigned long result;

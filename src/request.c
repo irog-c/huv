@@ -1,7 +1,7 @@
 #include "internal.h"
 
-#include <strings.h>
 #include <string.h>
+#include <strings.h>
 
 const char *huv_request_method(const huv_request_t *req) { return req->method; }
 const char *huv_request_path(const huv_request_t *req) { return req->path; }
@@ -31,7 +31,7 @@ size_t huv_request_header_count(const huv_request_t *req)
 }
 
 void huv_request_header_at(const huv_request_t *req, size_t index,
-                            const char **name, const char **value)
+                           const char **name, const char **value)
 {
     huv_conn_t *conn = req->conn;
     if (index >= conn->hdr_slot_count) {
@@ -60,9 +60,12 @@ const char *huv_request_param(const huv_request_t *req, const char *name)
 
 static int hex_nibble(char c)
 {
-    if (c >= '0' && c <= '9') return c - '0';
-    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    if (c >= 'a' && c <= 'f')
+        return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F')
+        return c - 'A' + 10;
     return -1;
 }
 
@@ -89,12 +92,11 @@ static size_t query_decode_append(huv_conn_t *conn, const char *in, size_t len)
             out = in[i];
         }
         if (huv_buf_append(&conn->query_buf, &conn->query_buf_len,
-                            &conn->query_buf_cap, &out, 1,
-                            HUV_URL_HARD_CAP) < 0)
+                           &conn->query_buf_cap, &out, 1, HUV_URL_HARD_CAP) < 0)
             return (size_t)-1;
     }
     if (huv_buf_append_nul(&conn->query_buf, &conn->query_buf_len,
-                            &conn->query_buf_cap, HUV_URL_HARD_CAP) < 0)
+                           &conn->query_buf_cap, HUV_URL_HARD_CAP) < 0)
         return (size_t)-1;
     return start;
 }
@@ -128,9 +130,9 @@ static void ensure_query_parsed(huv_conn_t *conn)
             size_t noff = query_decode_append(conn, name_start, name_len);
             if (noff == (size_t)-1)
                 return;
-            size_t voff = value_start ? query_decode_append(conn, value_start,
-                                                            value_len)
-                                      : query_decode_append(conn, "", 0);
+            size_t voff =
+                value_start ? query_decode_append(conn, value_start, value_len)
+                            : query_decode_append(conn, "", 0);
             if (voff == (size_t)-1)
                 return;
             query_slot_t *s = &conn->query_slots[conn->query_slot_count++];
@@ -143,8 +145,7 @@ static void ensure_query_parsed(huv_conn_t *conn)
     }
 }
 
-const char *huv_request_query_param(const huv_request_t *req,
-                                     const char *name)
+const char *huv_request_query_param(const huv_request_t *req, const char *name)
 {
     huv_conn_t *conn = req->conn;
     ensure_query_parsed(conn);

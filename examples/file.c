@@ -17,11 +17,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#define MAX_FILE_BYTES (4u << 20) /* 4 MiB — keep the example's memory bounded */
+#define MAX_FILE_BYTES                                                         \
+    (4u << 20) /* 4 MiB — keep the example's memory bounded */
 
 static const char *g_serve_root = ".";
 
-typedef struct {
+typedef struct
+{
     huv_response_t *res;
     char *path;
     char *data;
@@ -33,12 +35,18 @@ typedef struct {
 static const char *content_type_for(const char *name)
 {
     const char *dot = strrchr(name, '.');
-    if (!dot) return "application/octet-stream";
-    if (!strcmp(dot, ".txt")) return "text/plain; charset=utf-8";
-    if (!strcmp(dot, ".html")) return "text/html; charset=utf-8";
-    if (!strcmp(dot, ".json")) return "application/json";
-    if (!strcmp(dot, ".css")) return "text/css";
-    if (!strcmp(dot, ".js")) return "application/javascript";
+    if (!dot)
+        return "application/octet-stream";
+    if (!strcmp(dot, ".txt"))
+        return "text/plain; charset=utf-8";
+    if (!strcmp(dot, ".html"))
+        return "text/html; charset=utf-8";
+    if (!strcmp(dot, ".json"))
+        return "application/json";
+    if (!strcmp(dot, ".css"))
+        return "text/css";
+    if (!strcmp(dot, ".js"))
+        return "application/javascript";
     return "application/octet-stream";
 }
 
@@ -48,9 +56,7 @@ static void read_work(void *ud)
     read_ctx_t *ctx = ud;
     FILE *f = fopen(ctx->path, "rb");
     if (!f) {
-        ctx->status = (errno == ENOENT)  ? 404
-                      : (errno == EACCES) ? 403
-                                          : 500;
+        ctx->status = (errno == ENOENT) ? 404 : (errno == EACCES) ? 403 : 500;
         return;
     }
     struct stat st;
@@ -93,10 +99,18 @@ static void read_done(void *ud)
     } else {
         const char *msg;
         switch (ctx->status) {
-        case 404: msg = "not found\n"; break;
-        case 403: msg = "forbidden\n"; break;
-        case 413: msg = "file too large\n"; break;
-        default:  msg = "read failed\n"; break;
+        case 404:
+            msg = "not found\n";
+            break;
+        case 403:
+            msg = "forbidden\n";
+            break;
+        case 413:
+            msg = "file too large\n";
+            break;
+        default:
+            msg = "read failed\n";
+            break;
         }
         huv_response_status(ctx->res, ctx->status);
         huv_response_send(ctx->res, msg, strlen(msg));

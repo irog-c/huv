@@ -17,8 +17,8 @@ static void drain_force_close(uv_timer_t *timer)
 {
     huv_server_t *s = timer->data;
     huv_log(s, HUV_LOG_WARN,
-             "shutdown drain timeout, force-closing %u remaining connection(s)",
-             s->num_conns);
+            "shutdown drain timeout, force-closing %u remaining connection(s)",
+            s->num_conns);
     huv_conn_t *c = s->conns_head;
     while (c) {
         huv_conn_t *next = c->next;
@@ -36,7 +36,7 @@ static void start_drain(huv_server_t *s)
         return;
     s->shutting_down = true;
     huv_log(s, HUV_LOG_INFO, "shutting down (draining %u connection(s))",
-             s->num_conns);
+            s->num_conns);
 
     if (s->listening && !uv_is_closing((uv_handle_t *)&s->listener)) {
         uv_close((uv_handle_t *)&s->listener, NULL);
@@ -135,7 +135,7 @@ static int bind_listener(huv_server_t *s, uv_tcp_t *tcp, int port)
     }
     if (bind(fd, (const struct sockaddr *)&sin, sizeof sin) < 0) {
         huv_log(s, HUV_LOG_ERROR, "bind %s:%d: %s", s->config.bind_addr, port,
-                 strerror(errno));
+                strerror(errno));
         close(fd);
         return -1;
     }
@@ -160,7 +160,7 @@ static int run_worker(huv_server_t *s)
     bool tls_configured = s->config.tls_cert_path && s->config.tls_key_path;
     if (s->config.port == 0 && !tls_configured) {
         huv_log(s, HUV_LOG_ERROR,
-                 "no listeners: port=0 and TLS not configured");
+                "no listeners: port=0 and TLS not configured");
         return -1;
     }
 
@@ -186,8 +186,8 @@ static int run_worker(huv_server_t *s)
                       huv_conn_on_accept_tls) != 0)
             return -1;
         s->tls_listening = true;
-        huv_log(s, HUV_LOG_INFO, "tls listening on %s:%d",
-                 s->config.bind_addr, s->config.tls_port);
+        huv_log(s, HUV_LOG_INFO, "tls listening on %s:%d", s->config.bind_addr,
+                s->config.tls_port);
     }
 
     uv_signal_init(&s->loop, &s->sigint);
@@ -200,9 +200,9 @@ static int run_worker(huv_server_t *s)
 
     if (s->listening)
         huv_log(s, HUV_LOG_INFO,
-                 "worker pid=%d listening on %s:%d (max_connections=%u)",
-                 (int)getpid(), s->config.bind_addr, s->config.port,
-                 s->config.max_connections);
+                "worker pid=%d listening on %s:%d (max_connections=%u)",
+                (int)getpid(), s->config.bind_addr, s->config.port,
+                s->config.max_connections);
     uv_run(&s->loop, UV_RUN_DEFAULT);
     huv_log(s, HUV_LOG_INFO, "worker pid=%d stopped", (int)getpid());
     return 0;
@@ -221,7 +221,8 @@ static int run_worker(huv_server_t *s)
 #define RESPAWN_MAX_IN_WINDOW 10u
 #define RESPAWN_WINDOW_MS 60000u
 
-typedef struct {
+typedef struct
+{
     pid_t pid; /* current worker pid, -1 once the slot is done */
     unsigned restart_count;
     uint64_t window_start_ms;
@@ -276,10 +277,10 @@ static int run_master(huv_server_t *s, unsigned workers)
      * exit code 23 from LSan, etc.) we want the master to propagate the
      * abnormal exit rather than silently respawn and return 0. */
     const char *respawn_env = getenv("HUV_RESPAWN");
-    if (respawn_env && (respawn_env[0] == '0' ||
-                        strcasecmp(respawn_env, "false") == 0 ||
-                        strcasecmp(respawn_env, "off") == 0 ||
-                        strcasecmp(respawn_env, "no") == 0)) {
+    if (respawn_env &&
+        (respawn_env[0] == '0' || strcasecmp(respawn_env, "false") == 0 ||
+         strcasecmp(respawn_env, "off") == 0 ||
+         strcasecmp(respawn_env, "no") == 0)) {
         s->config.respawn_workers = false;
     }
 
@@ -304,8 +305,7 @@ static int run_master(huv_server_t *s, unsigned workers)
     }
 
     huv_log(s, HUV_LOG_INFO, "master pid=%d spawned %u workers (respawn=%s)",
-             (int)getpid(), workers,
-             s->config.respawn_workers ? "on" : "off");
+            (int)getpid(), workers, s->config.respawn_workers ? "on" : "off");
 
     struct sigaction sa = {0};
     sa.sa_handler = master_forward_signal;
@@ -333,8 +333,7 @@ static int run_master(huv_server_t *s, unsigned workers)
         if (slot == g_num_slots)
             continue; /* unknown pid, shouldn't happen */
 
-        bool abnormal =
-            !(WIFEXITED(status) && WEXITSTATUS(status) == 0);
+        bool abnormal = !(WIFEXITED(status) && WEXITSTATUS(status) == 0);
         bool should_respawn = abnormal && s->config.respawn_workers &&
                               !g_master_signaled && !g_slots[slot].retired;
 
@@ -347,10 +346,9 @@ static int run_master(huv_server_t *s, unsigned workers)
             g_slots[slot].restart_count++;
             if (g_slots[slot].restart_count > RESPAWN_MAX_IN_WINDOW) {
                 huv_log(s, HUV_LOG_ERROR,
-                         "worker slot %u: %u abnormal exits in %ums, "
-                         "retiring slot",
-                         slot, g_slots[slot].restart_count,
-                         RESPAWN_WINDOW_MS);
+                        "worker slot %u: %u abnormal exits in %ums, "
+                        "retiring slot",
+                        slot, g_slots[slot].restart_count, RESPAWN_WINDOW_MS);
                 g_slots[slot].pid = -1;
                 g_slots[slot].retired = true;
                 any_fail = 1;
@@ -359,9 +357,8 @@ static int run_master(huv_server_t *s, unsigned workers)
             }
             pid_t np = spawn_worker(s);
             if (np < 0) {
-                huv_log(s, HUV_LOG_ERROR,
-                         "respawn fork failed for slot %u: %s", slot,
-                         strerror(errno));
+                huv_log(s, HUV_LOG_ERROR, "respawn fork failed for slot %u: %s",
+                        slot, strerror(errno));
                 g_slots[slot].pid = -1;
                 any_fail = 1;
                 alive--;
@@ -369,12 +366,12 @@ static int run_master(huv_server_t *s, unsigned workers)
                 int info = WIFSIGNALED(status) ? WTERMSIG(status)
                                                : WEXITSTATUS(status);
                 huv_log(s, HUV_LOG_WARN,
-                         "worker slot %u: pid=%d exited (%s=%d), "
-                         "respawned pid=%d (%u/%u in window)",
-                         slot, (int)gone,
-                         WIFSIGNALED(status) ? "signal" : "status", info,
-                         (int)np, g_slots[slot].restart_count,
-                         RESPAWN_MAX_IN_WINDOW);
+                        "worker slot %u: pid=%d exited (%s=%d), "
+                        "respawned pid=%d (%u/%u in window)",
+                        slot, (int)gone,
+                        WIFSIGNALED(status) ? "signal" : "status", info,
+                        (int)np, g_slots[slot].restart_count,
+                        RESPAWN_MAX_IN_WINDOW);
                 g_slots[slot].pid = np;
                 /* alive unchanged: replacement took the slot. A successful
                  * respawn counts as recovered, so any_fail stays clear. */
@@ -387,7 +384,7 @@ static int run_master(huv_server_t *s, unsigned workers)
         }
     }
     huv_log(s, HUV_LOG_INFO, "master pid=%d: all workers exited",
-             (int)getpid());
+            (int)getpid());
     return any_fail ? -1 : 0;
 }
 

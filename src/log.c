@@ -21,11 +21,21 @@ void huv_log_stderr(void *user, huv_log_level_t level, const char *msg)
     (void)user;
     const char *tag;
     switch (level) {
-    case HUV_LOG_DEBUG: tag = "debug"; break;
-    case HUV_LOG_INFO:  tag = "info";  break;
-    case HUV_LOG_WARN:  tag = "warn";  break;
-    case HUV_LOG_ERROR: tag = "error"; break;
-    default:             tag = "?";     break;
+    case HUV_LOG_DEBUG:
+        tag = "debug";
+        break;
+    case HUV_LOG_INFO:
+        tag = "info";
+        break;
+    case HUV_LOG_WARN:
+        tag = "warn";
+        break;
+    case HUV_LOG_ERROR:
+        tag = "error";
+        break;
+    default:
+        tag = "?";
+        break;
     }
     /* One fprintf call → one write() on unbuffered stderr, so master and
      * worker lines interleave cleanly without tearing. The pid prefix lets

@@ -4,7 +4,7 @@
 #include <string.h>
 
 int huv_buf_append(char **buf, size_t *len, size_t *cap, const char *data,
-                    size_t n, size_t hard_cap)
+                   size_t n, size_t hard_cap)
 {
     if (*len + n + 1 > hard_cap)
         return -1;
